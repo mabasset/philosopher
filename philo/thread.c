@@ -28,6 +28,8 @@ void	*ft_meal(void *philo)
 		ft_philo_msg(ph->rules, ph->id, "has taken a fork");
 		ft_philo_msg(ph->rules, ph->id, "is eating");
 		ph->n_eat++;
+		if (ph->n_eat == ph->rules->must_eat)
+			ph->end = 1;
 		ph->strv = ft_time() - ph->rules->start;
 		my_sleep(ph->rules->time_eat, ph->rules);
 		pthread_mutex_unlock(ph->right);
@@ -48,8 +50,8 @@ int	ft_finish(t_philo *ph)
 	int	check;
 
 	tmp = ft_time() - ph->rules->start;
-	i = 0;
 	check = 0;
+	i = 0;
 	while (i < ph->rules->n_ph)
 	{
 		if (tmp - ph[i].strv > ph->rules->time_death)
@@ -58,7 +60,7 @@ int	ft_finish(t_philo *ph)
 			ph->rules->finish = 1;
 			return (1);
 		}
-		if (ph[i].n_eat == ph->rules->must_eat)
+		if (ph[i].end == 1)
 			check++;
 		i++;
 	}

@@ -23,6 +23,7 @@ typedef struct s_philo
 {
 	int				id;
 	int				n_eat;
+	int				end;
 	long long		strv;
 	struct s_rules	*rules;
 	pthread_mutex_t	*left;

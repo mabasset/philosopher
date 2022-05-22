@@ -54,6 +54,7 @@ void	ft_init_philo(t_rules *rules)
 	{
 		rules->philo[i].id = i + 1;
 		rules->philo[i].n_eat = 0;
+		rules->philo[i].end = 0;
 		rules->philo[i].strv = 0;
 		rules->philo[i].rules = rules;
 		rules->philo[i].left = &rules->forks[i];
