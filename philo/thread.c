@@ -22,10 +22,7 @@ void	*ft_meal(void *philo)
 		my_sleep(ph->rules->time_eat, ph->rules);
 	while (1)
 	{
-		pthread_mutex_lock(ph->right);
-		ft_philo_msg(ph->rules, ph->id, "has taken a fork");
-		pthread_mutex_lock(ph->left);
-		ft_philo_msg(ph->rules, ph->id, "has taken a fork");
+		ft_take_forks(ph);
 		ft_philo_msg(ph->rules, ph->id, "is eating");
 		ph->n_eat++;
 		if (ph->n_eat == ph->rules->must_eat)

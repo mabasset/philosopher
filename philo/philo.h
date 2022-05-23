@@ -47,8 +47,8 @@ typedef struct s_rules
 }				t_rules;
 
 int			ft_error(void);
+void		ft_take_forks(t_philo *ph);
 void		ft_philo_msg(t_rules *rules, int id, char *str);
-int			ft_isspace(char c);
 long long	ft_atoi(const char *str);
 int			ft_checker(int argc, char *argv[]);
 int			ft_limits(long long nb);

@@ -12,6 +12,14 @@
 
 #include "philo.h"
 
+void	ft_take_forks(t_philo *ph)
+{
+	pthread_mutex_lock(ph->right);
+	ft_philo_msg(ph->rules, ph->id, "has taken a fork");
+	pthread_mutex_lock(ph->left);
+	ft_philo_msg(ph->rules, ph->id, "has taken a fork");
+}
+
 int	ft_error(void)
 {
 	write(2, "error\n", 6);
@@ -34,7 +42,7 @@ int	ft_checker(int argc, char *argv[])
 	while (i < argc)
 	{
 		j = 0;
-		while (ft_isspace(argv[i][j]) == 1)
+		while (argv[i][j] == ' ' || (argv[i][j] >= 9 && argv[i][j] <= 13))
 			j++;
 		if (argv[i][j] == '+')
 			j++;
@@ -43,13 +51,6 @@ int	ft_checker(int argc, char *argv[])
 		i++;
 	}
 	return (1);
-}
-
-int	ft_isspace(char c)
-{
-	if (c == ' ' || (c >= 9 && c <= 13))
-		return (1);
-	return (0);
 }
 
 long long	ft_atoi(const char *str)
@@ -61,7 +62,7 @@ long long	ft_atoi(const char *str)
 	i = 0;
 	nb = 0;
 	sign = 1;
-	while (ft_isspace(str[i]) && str[i] != '\0')
+	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
 		i++;
 	if (str[i] == '+' || str[i] == '-')
 	{
