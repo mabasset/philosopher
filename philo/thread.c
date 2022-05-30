@@ -12,32 +12,30 @@
 
 #include "philo.h"
 
-void	*ft_meal(void *philo)
+int check_mutex(int flag, t_philo *ph)
 {
-	t_philo	*ph;
+	int tmp;
 
-	ph = philo;
-	ph->strv = ft_time() - ph->rules->start;
-	if (ph->id % 2 == 0)
-		my_sleep(ph->rules->time_eat, ph->rules);
-	while (1)
+	tmp = 0;
+	if (flag == 0)
 	{
-		ft_take_forks(ph);
-		ft_philo_msg(ph->rules, ph->id, "is eating");
-		ph->n_eat++;
-		if (ph->n_eat == ph->rules->must_eat)
-			ph->end = 1;
-		ph->strv = ft_time() - ph->rules->start;
-		my_sleep(ph->rules->time_eat, ph->rules);
-		pthread_mutex_unlock(ph->right);
-		pthread_mutex_unlock(ph->left);
-		if (ph->rules->finish == 1)
-			break ;
-		ft_philo_msg(ph->rules, ph->id, "is sleeping");
-		my_sleep(ph->rules->time_sleep, ph->rules);
-		ft_philo_msg(ph->rules, ph->id, "is thinking");
+		pthread_mutex_lock(&ph->rules->die_mutex);
+		tmp = ph->rules->die;
+		pthread_mutex_unlock(&ph->rules->die_mutex);
 	}
-	return (NULL);
+	else if (flag == 1)
+	{
+		pthread_mutex_lock(&ph->rules->end_meal_mutex);
+		tmp = ph->rules->end_meal;
+		pthread_mutex_unlock(&ph->rules->end_meal_mutex);
+	}
+	else if (flag == 2)
+	{
+		pthread_mutex_lock(&ph->rules->must_eat_mutex);
+		tmp = ph->end;
+		pthread_mutex_unlock(&ph->rules->must_eat_mutex);
+	}
+	return (tmp);
 }
 
 int	ft_finish(t_philo *ph)
@@ -46,30 +44,35 @@ int	ft_finish(t_philo *ph)
 	int	i;
 	int	check;
 
-	tmp = ft_time() - ph->rules->start;
-	check = 0;
 	i = 0;
+	check = 0;
 	while (i < ph->rules->n_ph)
 	{
-		if (tmp - ph[i].strv > ph->rules->time_death)
+		pthread_mutex_lock(&ph[i].philo_time);
+		tmp = ft_time() - ph->rules->start - ph[i].strv;
+		pthread_mutex_unlock(&ph[i].philo_time);
+		if (tmp > ph->rules->time_death)
 		{
-			ft_philo_msg(ph->rules, ph[i].id, "died");
-			ph->rules->finish = 1;
+			ft_philo_msg(&ph[i], ph[i].id, "died");
+			pthread_mutex_lock(&ph->rules->die_mutex);
+			ph->rules->die = 0;
+			pthread_mutex_unlock(&ph->rules->die_mutex);
 			return (1);
 		}
-		if (ph[i].end == 1)
+		if (check_mutex(2, &ph[i]))
 			check++;
 		i++;
 	}
 	if (check == ph->rules->n_ph)
 	{
-		ph->rules->finish = 1;
-		return (1);
+		pthread_mutex_lock(&ph->rules->die_mutex);
+		ph->rules->die = 0;
+		pthread_mutex_unlock(&ph->rules->die_mutex);
 	}
 	return (0);
 }
 
-void	*ft_monitor(void *philo)
+void	ft_monitor(void *philo)
 {
 	t_philo		*ph;
 
@@ -77,7 +80,41 @@ void	*ft_monitor(void *philo)
 	while (1)
 	{
 		if (ft_finish(ph) == 1)
-			return (NULL);
+			break ;
+	}
+}
+
+void	*ft_meal(void *philo)
+{
+	t_philo		*ph;
+
+	ph = philo;
+	pthread_mutex_lock(&ph->philo_time);
+	ph->strv = ft_time() - ph->rules->start;
+	pthread_mutex_unlock(&ph->philo_time);
+	if (ph->id % 2 == 0)
+		my_sleep(ph->rules->time_eat);
+	while (check_mutex(0, ph) && check_mutex(1, ph))
+	{
+		if (ft_take_forks(ph) == 1)
+			break ;
+		ft_philo_msg(ph, ph->id, "is eating");
+		ph->n_eat++;
+		if (ph->n_eat == ph->rules->must_eat)
+		{
+			pthread_mutex_lock(&ph->rules->must_eat_mutex);
+			ph->end = 1;
+			pthread_mutex_unlock(&ph->rules->must_eat_mutex);
+		}
+		pthread_mutex_lock(&ph->philo_time);
+		ph->strv = ft_time() - ph->rules->start;
+		pthread_mutex_unlock(&ph->philo_time);
+		my_sleep(ph->rules->time_eat);
+		pthread_mutex_unlock(ph->right);
+		pthread_mutex_unlock(ph->left);
+		ft_philo_msg(ph, ph->id, "is sleeping");
+		my_sleep(ph->rules->time_sleep);
+		ft_philo_msg(ph, ph->id, "is thinking");
 	}
 	return (NULL);
 }
@@ -88,22 +125,19 @@ void	ft_exit(t_rules *rules)
 	t_philo	*philo;
 
 	philo = rules->philo;
-	pthread_join(rules->death, NULL);
-	i = 0;
-	while (i < rules->n_ph)
-	{
-		pthread_join(philo[i].thread, NULL);
-		i++;
-	}
 	i = 0;
 	while (i < rules->n_ph)
 	{
 		pthread_mutex_destroy(&rules->forks[i]);
+		pthread_mutex_destroy(&rules->philo[i].philo_time);
 		i++;
 	}
 	pthread_mutex_destroy(&rules->lock);
-	free(rules->forks);
+	pthread_mutex_destroy(&rules->die_mutex);
+	pthread_mutex_destroy(&rules->end_meal_mutex);
+	pthread_mutex_destroy(&rules->must_eat_mutex);
 	free(philo);
+	free(rules->forks);
 }
 
 void	ft_thread(t_rules *rules)
@@ -113,11 +147,17 @@ void	ft_thread(t_rules *rules)
 
 	philo = rules->philo;
 	rules->start = ft_time();
-	pthread_create(&rules->death, NULL, ft_monitor, rules->philo);
 	i = 0;
 	while (i < rules->n_ph)
 	{
 		pthread_create(&philo[i].thread, NULL, ft_meal, &philo[i]);
+		i++;
+	}
+	ft_monitor(philo);
+	i = 0;
+	while (i < rules->n_ph)
+	{
+		pthread_join(philo[i].thread, NULL);
 		i++;
 	}
 	ft_exit(rules);

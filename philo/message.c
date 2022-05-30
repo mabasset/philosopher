@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   message.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: mabasset <mabasset@student.42.fr>          +#+  +:+       +#+        */
+/*   By: mabasset <mabasset@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 22:54:42 by mabasset          #+#    #+#             */
-/*   Updated: 2022/05/09 23:26:31 by mabasset         ###   ########.fr       */
+/*   Updated: 2022/05/30 19:38:34 by mabasset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,26 +20,23 @@ long long	ft_time(void)
 	return ((time.tv_sec * 1000) + (time.tv_usec / 1000));
 }
 
-void	my_sleep(long long time, t_rules *rules)
+void	my_sleep(long long time)
 {
 	long long	tmp;
 
 	tmp = ft_time();
-	while (time > ft_time() - tmp)
-	{
-		if (rules->finish == 1)
-			break ;
-		usleep(50);
-	}
+	usleep(time * 1000 - 20000);
+	while (ft_time() < tmp + time)
+		continue ;
 }
 
-void	ft_philo_msg(t_rules *rules, int id, char *str)
+void	ft_philo_msg(t_philo *ph, int id, char *str)
 {
-	pthread_mutex_lock(&rules->lock);
-	if (rules->finish == 0)
+	if (check_mutex(0, ph) && check_mutex(1, ph))
 	{
-		printf("%lld ", ft_time() - rules->start);
+		pthread_mutex_lock(&ph->rules->lock);
+		printf("%lld ", ft_time() - ph->rules->start);
 		printf("%d %s\n", id, str);
+		pthread_mutex_unlock(&ph->rules->lock);
 	}
-	pthread_mutex_unlock(&rules->lock);
 }

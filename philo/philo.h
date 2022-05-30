@@ -23,12 +23,14 @@ typedef struct s_philo
 {
 	int				id;
 	int				n_eat;
-	int				end;
 	long long		strv;
+	int				end;
 	struct s_rules	*rules;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
+	pthread_mutex_t	philo_time;
 	pthread_t		thread;
+	pthread_t		monitor;
 }				t_philo;
 
 typedef struct s_rules
@@ -39,21 +41,25 @@ typedef struct s_rules
 	long long		time_sleep;
 	long long		must_eat;
 	long long		start;
-	int				finish;
+	int				die;
+	int				end_meal;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	lock;
-	pthread_t		death;
+	pthread_mutex_t die_mutex;
+	pthread_mutex_t end_meal_mutex;
+	pthread_mutex_t must_eat_mutex;
 	t_philo			*philo;
 }				t_rules;
 
 int			ft_error(void);
-void		ft_take_forks(t_philo *ph);
-void		ft_philo_msg(t_rules *rules, int id, char *str);
+int			ft_take_forks(t_philo *ph);
+void		ft_philo_msg(t_philo *ph, int id, char *str);
 long long	ft_atoi(const char *str);
 int			ft_checker(int argc, char *argv[]);
 int			ft_limits(long long nb);
 long long	ft_time(void);
-void		my_sleep(long long time, t_rules *rules);
+void		my_sleep(long long time);
 void		ft_thread(t_rules *rules);
+int			check_mutex(int flag, t_philo *ph);
 
 #endif
