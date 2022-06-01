@@ -1,5 +1,5 @@
 NAME = philo
-SRC = main.c thread.c message.c utility.c
+SRC = main.c thread.c message.c philo_utility.c utility.c
 FLG = -Wall -Werror -Wextra #-fsanitize=address -g3
 
 all:	$(NAME)

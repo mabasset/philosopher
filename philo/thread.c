@@ -12,32 +12,6 @@
 
 #include "philo.h"
 
-int check_mutex(int flag, t_philo *ph)
-{
-	int tmp;
-
-	tmp = 0;
-	if (flag == 0)
-	{
-		pthread_mutex_lock(&ph->rules->die_mutex);
-		tmp = ph->rules->die;
-		pthread_mutex_unlock(&ph->rules->die_mutex);
-	}
-	else if (flag == 1)
-	{
-		pthread_mutex_lock(&ph->rules->end_meal_mutex);
-		tmp = ph->rules->end_meal;
-		pthread_mutex_unlock(&ph->rules->end_meal_mutex);
-	}
-	else if (flag == 2)
-	{
-		pthread_mutex_lock(&ph->rules->must_eat_mutex);
-		tmp = ph->end;
-		pthread_mutex_unlock(&ph->rules->must_eat_mutex);
-	}
-	return (tmp);
-}
-
 int	ft_finish(t_philo *ph)
 {
 	int	tmp;
@@ -54,21 +28,15 @@ int	ft_finish(t_philo *ph)
 		if (tmp > ph->rules->time_death)
 		{
 			ft_philo_msg(&ph[i], ph[i].id, "died");
-			pthread_mutex_lock(&ph->rules->die_mutex);
-			ph->rules->die = 0;
-			pthread_mutex_unlock(&ph->rules->die_mutex);
+			ft_death(ph);
 			return (1);
 		}
-		if (check_mutex(2, &ph[i]))
+		if (check_mutex(1, &ph[i]))
 			check++;
 		i++;
 	}
 	if (check == ph->rules->n_ph)
-	{
-		pthread_mutex_lock(&ph->rules->die_mutex);
-		ph->rules->die = 0;
-		pthread_mutex_unlock(&ph->rules->die_mutex);
-	}
+		ft_death(ph);
 	return (0);
 }
 
@@ -89,12 +57,10 @@ void	*ft_meal(void *philo)
 	t_philo		*ph;
 
 	ph = philo;
-	pthread_mutex_lock(&ph->philo_time);
-	ph->strv = ft_time() - ph->rules->start;
-	pthread_mutex_unlock(&ph->philo_time);
+	ft_starving(ph);
 	if (ph->id % 2 == 0)
 		my_sleep(ph->rules->time_eat);
-	while (check_mutex(0, ph) && check_mutex(1, ph))
+	while (check_mutex(0, ph))
 	{
 		if (ft_take_forks(ph) == 1)
 			break ;
@@ -106,15 +72,8 @@ void	*ft_meal(void *philo)
 			ph->end = 1;
 			pthread_mutex_unlock(&ph->rules->must_eat_mutex);
 		}
-		pthread_mutex_lock(&ph->philo_time);
-		ph->strv = ft_time() - ph->rules->start;
-		pthread_mutex_unlock(&ph->philo_time);
-		my_sleep(ph->rules->time_eat);
-		pthread_mutex_unlock(ph->right);
-		pthread_mutex_unlock(ph->left);
-		ft_philo_msg(ph, ph->id, "is sleeping");
-		my_sleep(ph->rules->time_sleep);
-		ft_philo_msg(ph, ph->id, "is thinking");
+		ft_starving(ph);
+		ft_routine(ph);
 	}
 	return (NULL);
 }
@@ -134,7 +93,6 @@ void	ft_exit(t_rules *rules)
 	}
 	pthread_mutex_destroy(&rules->lock);
 	pthread_mutex_destroy(&rules->die_mutex);
-	pthread_mutex_destroy(&rules->end_meal_mutex);
 	pthread_mutex_destroy(&rules->must_eat_mutex);
 	free(philo);
 	free(rules->forks);

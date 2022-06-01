@@ -1,6 +1,6 @@
 NAME = philo_bonus
 SRC = main.c thread.c message.c utility.c
-FLG = -Wall -Werror -Wextra
+FLG = -Wall -Werror -Wextra #-fsanitize=address -g3
 
 all:	$(NAME)
 

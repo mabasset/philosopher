@@ -42,17 +42,18 @@ typedef struct s_rules
 	long long		must_eat;
 	long long		start;
 	int				die;
-	int				end_meal;
 	pthread_mutex_t	*forks;
 	pthread_mutex_t	lock;
-	pthread_mutex_t die_mutex;
-	pthread_mutex_t end_meal_mutex;
-	pthread_mutex_t must_eat_mutex;
+	pthread_mutex_t	die_mutex;
+	pthread_mutex_t	must_eat_mutex;
 	t_philo			*philo;
 }				t_rules;
 
 int			ft_error(void);
+void		ft_starving(t_philo *ph);
+void		ft_death(t_philo *ph);
 int			ft_take_forks(t_philo *ph);
+void		ft_routine(t_philo *ph);
 void		ft_philo_msg(t_philo *ph, int id, char *str);
 long long	ft_atoi(const char *str);
 int			ft_checker(int argc, char *argv[]);

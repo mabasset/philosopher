@@ -12,17 +12,6 @@
 
 #include "philo.h"
 
-int	ft_take_forks(t_philo *ph)
-{
-	pthread_mutex_lock(ph->right);
-	ft_philo_msg(ph, ph->id, "has taken a fork");
-	if (ph->rules->n_ph == 1)
-		return (1);
-	pthread_mutex_lock(ph->left);
-	ft_philo_msg(ph, ph->id, "has taken a fork");
-	return (0);
-}
-
 int	ft_error(void)
 {
 	write(2, "error\n", 6);

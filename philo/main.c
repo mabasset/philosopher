@@ -20,7 +20,6 @@ int	ft_mutex_init(t_rules *rules)
 	ph = rules->n_ph;
 	pthread_mutex_init(&rules->lock, NULL);
 	pthread_mutex_init(&rules->die_mutex, NULL);
-	pthread_mutex_init(&rules->end_meal_mutex, NULL);
 	pthread_mutex_init(&rules->must_eat_mutex, NULL);
 	rules->forks = (pthread_mutex_t *) malloc (sizeof(pthread_mutex_t) * ph);
 	if (rules->forks == NULL)
@@ -41,7 +40,6 @@ int	ft_init_rules(t_rules *rules, char *argv[])
 	rules->time_eat = ft_atoi(argv[3]);
 	rules->time_sleep = ft_atoi(argv[4]);
 	rules->die = 1;
-	rules->end_meal = 1;
 	if (ft_limits(rules->n_ph) == 1 || ft_limits(rules->time_death) == 1
 		|| ft_limits(rules->time_eat) == 1 || ft_limits(rules->time_sleep) == 1)
 		return (1);
