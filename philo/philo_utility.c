@@ -6,7 +6,7 @@
 /*   By: mabasset <mabasset@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 16:15:11 by mabasset          #+#    #+#             */
-/*   Updated: 2022/06/01 16:37:00 by mabasset         ###   ########.fr       */
+/*   Updated: 2022/06/22 19:00:08 by mabasset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,9 +34,9 @@ int	check_mutex(int flag, t_philo *ph)
 
 void	ft_starving(t_philo *ph)
 {
-	pthread_mutex_lock(&ph->philo_time);
+	pthread_mutex_lock(&ph->rules->philo_time);
 	ph->strv = ft_time() - ph->rules->start;
-	pthread_mutex_unlock(&ph->philo_time);
+	pthread_mutex_unlock(&ph->rules->philo_time);
 }
 
 void	ft_death(t_philo *ph)
@@ -62,7 +62,9 @@ void	ft_routine(t_philo *ph)
 	my_sleep(ph->rules->time_eat);
 	pthread_mutex_unlock(ph->right);
 	pthread_mutex_unlock(ph->left);
-	ft_philo_msg(ph, ph->id, "is sleeping");
+	if (check_mutex(0, ph))
+		ft_philo_msg(ph, ph->id, "is sleeping");
 	my_sleep(ph->rules->time_sleep);
-	ft_philo_msg(ph, ph->id, "is thinking");
+	if (check_mutex(0, ph))
+		ft_philo_msg(ph, ph->id, "is thinking");
 }

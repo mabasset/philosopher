@@ -28,7 +28,6 @@ typedef struct s_philo
 	struct s_rules	*rules;
 	pthread_mutex_t	*left;
 	pthread_mutex_t	*right;
-	pthread_mutex_t	philo_time;
 	pthread_t		thread;
 	pthread_t		monitor;
 }				t_philo;
@@ -46,6 +45,7 @@ typedef struct s_rules
 	pthread_mutex_t	lock;
 	pthread_mutex_t	die_mutex;
 	pthread_mutex_t	must_eat_mutex;
+	pthread_mutex_t	philo_time;
 	t_philo			*philo;
 }				t_rules;
 

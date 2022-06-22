@@ -21,6 +21,7 @@ int	ft_mutex_init(t_rules *rules)
 	pthread_mutex_init(&rules->lock, NULL);
 	pthread_mutex_init(&rules->die_mutex, NULL);
 	pthread_mutex_init(&rules->must_eat_mutex, NULL);
+	pthread_mutex_init(&rules->philo_time, NULL);
 	rules->forks = (pthread_mutex_t *) malloc (sizeof(pthread_mutex_t) * ph);
 	if (rules->forks == NULL)
 		return (1);
@@ -62,7 +63,6 @@ void	ft_init_philo(t_rules *rules)
 		rules->philo[i].n_eat = 0;
 		rules->philo[i].end = 0;
 		rules->philo[i].rules = rules;
-		pthread_mutex_init(&rules->philo[i].philo_time, NULL);
 		rules->philo[i].left = &rules->forks[i];
 		rules->philo[i].right = &rules->forks[i + 1];
 		if (i == rules->n_ph - 1)

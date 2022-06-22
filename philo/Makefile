@@ -12,7 +12,4 @@ clean:
 
 fclean: clean
 
-norm:
-	@norminette
-
 re:		fclean all

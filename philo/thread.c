@@ -22,13 +22,14 @@ int	ft_finish(t_philo *ph)
 	check = 0;
 	while (i < ph->rules->n_ph)
 	{
-		pthread_mutex_lock(&ph[i].philo_time);
+		pthread_mutex_lock(&ph->rules->philo_time);
 		tmp = ft_time() - ph->rules->start - ph[i].strv;
-		pthread_mutex_unlock(&ph[i].philo_time);
+		pthread_mutex_unlock(&ph->rules->philo_time);
 		if (tmp > ph->rules->time_death)
 		{
-			ft_philo_msg(&ph[i], ph[i].id, "died");
 			ft_death(ph);
+			usleep(2000);
+			ft_philo_msg(&ph[i], ph[i].id, "died");
 			return (1);
 		}
 		if (check_mutex(1, &ph[i]))
@@ -64,7 +65,8 @@ void	*ft_meal(void *philo)
 	{
 		if (ft_take_forks(ph) == 1)
 			break ;
-		ft_philo_msg(ph, ph->id, "is eating");
+		if (check_mutex(0, ph))
+			ft_philo_msg(ph, ph->id, "is eating");
 		ph->n_eat++;
 		if (ph->n_eat == ph->rules->must_eat)
 		{
@@ -88,7 +90,7 @@ void	ft_exit(t_rules *rules)
 	while (i < rules->n_ph)
 	{
 		pthread_mutex_destroy(&rules->forks[i]);
-		pthread_mutex_destroy(&rules->philo[i].philo_time);
+		pthread_mutex_destroy(&rules->philo_time);
 		i++;
 	}
 	pthread_mutex_destroy(&rules->lock);
