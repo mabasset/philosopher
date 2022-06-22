@@ -12,12 +12,8 @@
 
 #include "philo.h"
 
-int	ft_finish(t_philo *ph)
+int	ft_finish(t_philo *ph, int tmp, int i, int check)
 {
-	int	tmp;
-	int	i;
-	int	check;
-
 	i = 0;
 	check = 0;
 	while (i < ph->rules->n_ph)
@@ -37,18 +33,24 @@ int	ft_finish(t_philo *ph)
 		i++;
 	}
 	if (check == ph->rules->n_ph)
+	{
 		ft_death(ph);
+		return (1);
+	}
 	return (0);
 }
 
 void	ft_monitor(void *philo)
 {
-	t_philo		*ph;
+	t_philo	*ph;
+	int		tmp;
+	int		i;
+	int		check;
 
 	ph = philo;
 	while (1)
 	{
-		if (ft_finish(ph) == 1)
+		if (ft_finish(ph, tmp, i, check) == 1)
 			break ;
 	}
 }

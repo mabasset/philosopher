@@ -6,7 +6,7 @@
 /*   By: mabasset <mabasset@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/04/21 22:54:42 by mabasset          #+#    #+#             */
-/*   Updated: 2022/06/22 19:15:50 by mabasset         ###   ########.fr       */
+/*   Updated: 2022/06/22 22:51:33 by mabasset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,8 +32,8 @@ void	my_sleep(long long time)
 
 void	ft_philo_msg(t_philo *ph, int id, char *str)
 {
-		pthread_mutex_lock(&ph->rules->lock);
-		printf("%lld ", ft_time() - ph->rules->start);
-		printf("%d %s\n", id, str);
-		pthread_mutex_unlock(&ph->rules->lock);
+	pthread_mutex_lock(&ph->rules->lock);
+	printf("%lld ", ft_time() - ph->rules->start);
+	printf("%d %s\n", id, str);
+	pthread_mutex_unlock(&ph->rules->lock);
 }

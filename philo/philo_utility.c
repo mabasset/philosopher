@@ -6,7 +6,7 @@
 /*   By: mabasset <mabasset@student.42roma.it>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2022/06/01 16:15:11 by mabasset          #+#    #+#             */
-/*   Updated: 2022/06/22 19:00:08 by mabasset         ###   ########.fr       */
+/*   Updated: 2022/06/22 22:32:19 by mabasset         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,11 +49,13 @@ void	ft_death(t_philo *ph)
 int	ft_take_forks(t_philo *ph)
 {
 	pthread_mutex_lock(ph->right);
-	ft_philo_msg(ph, ph->id, "has taken a fork");
+	if (check_mutex(0, ph))
+		ft_philo_msg(ph, ph->id, "has taken a fork");
 	if (ph->rules->n_ph == 1)
 		return (1);
 	pthread_mutex_lock(ph->left);
-	ft_philo_msg(ph, ph->id, "has taken a fork");
+	if (check_mutex(0, ph))
+		ft_philo_msg(ph, ph->id, "has taken a fork");
 	return (0);
 }
 
