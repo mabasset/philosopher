@@ -47,6 +47,9 @@ void	ft_monitor(void *philo)
 	int		i;
 	int		check;
 
+	tmp = 0;
+	check = 0;
+	i = 0;
 	ph = philo;
 	while (1)
 	{
